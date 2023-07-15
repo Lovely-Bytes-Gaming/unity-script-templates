@@ -1,0 +1,17 @@
+using UnityEngine;
+using Unity.Entities;
+
+namespace #NAMESPACE# 
+{
+	[AddComponentMenu("#ASSETMENU#/#SCRIPTNAME#")]
+	public class #SCRIPTNAME# : MonoBehaviour
+	{
+        public class Baker : Baker<#SCRIPTNAME#> 
+        {
+            public override void Bake(#SCRIPTNAME# authoring)
+            {
+            #NOTRIM#
+            }
+        }
+	}
+}
