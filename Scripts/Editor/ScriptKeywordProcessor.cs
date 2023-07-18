@@ -80,6 +80,9 @@ internal sealed class ScriptKeywordProcessor : AssetModificationProcessor
                 namespaceString += ".";
         }
 
+        if(namespaceString.Length == 0)
+            namespaceString = "ReplaceMe";
+
         return namespaceString;
     }
 }
