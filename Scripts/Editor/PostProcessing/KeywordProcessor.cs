@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.IO;
 
-internal sealed class ScriptKeywordProcessor : AssetModificationProcessor
+internal sealed class KeywordProcessor : AssetModificationProcessor
 {
     private static readonly char[] delimiters = new char[] { '/', '\\', '.' };
     private static readonly List<string> excludeFromNamespace = new() 
@@ -42,7 +42,7 @@ internal sealed class ScriptKeywordProcessor : AssetModificationProcessor
 
         string fileContent = System.IO.File.ReadAllText(path);
 
-        if(fileContent.StartsWith(KEYWORD_DONT_REPLACE))
+        if(fileContent.Contains(KEYWORD_DONT_REPLACE))
             return;
             
         fileContent = fileContent.Replace(KEYWORD_NAMESPACE, namespaceString);
