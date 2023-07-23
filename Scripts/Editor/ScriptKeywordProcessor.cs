@@ -17,9 +17,13 @@ internal sealed class ScriptKeywordProcessor : AssetModificationProcessor
         "Experimental" 
     };
 
+    private const string
+        KEYWORD_NAMESPACE = "#NAMESPACE#",
+        KEYWORD_ASSETMENU = "#ASSETMENU#";
+
     public static void OnWillCreateAsset(string path)
     {
-        path = path.Replace(".meta", "");
+        path = path.Replace(".meta", string.Empty);
         
         if(!path.EndsWith(".cs"))
             return;
@@ -34,8 +38,8 @@ internal sealed class ScriptKeywordProcessor : AssetModificationProcessor
             return;
 
         string fileContent = System.IO.File.ReadAllText(path);
-        fileContent = fileContent.Replace("#NAMESPACE#", namespaceString);
-        fileContent = fileContent.Replace("#ASSETMENU#", assetMenuString);
+        fileContent = fileContent.Replace(KEYWORD_NAMESPACE, namespaceString);
+        fileContent = fileContent.Replace(KEYWORD_ASSETMENU, assetMenuString);
 
         System.IO.File.WriteAllText(path, fileContent);
         AssetDatabase.Refresh();
