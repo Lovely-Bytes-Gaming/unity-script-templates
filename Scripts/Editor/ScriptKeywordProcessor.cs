@@ -1,3 +1,5 @@
+// DONT_REPLACE_KEYWORDS
+
 #if UNITY_EDITOR 
 
 using UnityEngine;
@@ -19,7 +21,8 @@ internal sealed class ScriptKeywordProcessor : AssetModificationProcessor
 
     private const string
         KEYWORD_NAMESPACE = "#NAMESPACE#",
-        KEYWORD_ASSETMENU = "#ASSETMENU#";
+        KEYWORD_ASSETMENU = "#ASSETMENU#",
+        KEYWORD_DONT_REPLACE = "// DONT_REPLACE_KEYWORDS";
 
     public static void OnWillCreateAsset(string path)
     {
@@ -38,6 +41,10 @@ internal sealed class ScriptKeywordProcessor : AssetModificationProcessor
             return;
 
         string fileContent = System.IO.File.ReadAllText(path);
+
+        if(fileContent.StartsWith(KEYWORD_DONT_REPLACE))
+            return;
+            
         fileContent = fileContent.Replace(KEYWORD_NAMESPACE, namespaceString);
         fileContent = fileContent.Replace(KEYWORD_ASSETMENU, assetMenuString);
 
