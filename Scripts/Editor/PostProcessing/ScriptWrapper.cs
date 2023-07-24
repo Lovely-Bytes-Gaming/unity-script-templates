@@ -18,10 +18,12 @@ namespace ScriptTemplates.PostProcessing
 
             if(IndexAtEOF) 
             {
+                // no using directives, so we can put the namespace in the first line
                 GotoStart();
             }
             else 
             {
+                // place the namespace after the last using directive
                 GotoNextLine();
                 InsertAndSkip("\n");
             }
@@ -42,7 +44,7 @@ namespace ScriptTemplates.PostProcessing
         public void ChangeNamespace(string newNamespace) 
         {
             GotoStart();
-            PlaceIndexAfterLastOccurence("using");
+            PlaceIndexAfterLast("using");
 
             string namespaceLine = "namespace " + newNamespace;
 
@@ -64,7 +66,7 @@ namespace ScriptTemplates.PostProcessing
             Index = 0;
         }
 
-        public void PlaceIndexAfterLastOccurence(string substring) 
+        public void PlaceIndexAfterLast(string substring) 
         {
             Index = Value.LastIndexOf(substring);
 
