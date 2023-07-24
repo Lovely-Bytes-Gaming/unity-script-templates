@@ -2,12 +2,12 @@ namespace ScriptTemplates.PostProcessing
 {
 	internal struct ScriptWrapper 
 	{
-        private int index;
+        public int Index { get; private set; }
         public string Value { get;  private set;}
 
         public ScriptWrapper(string sourceString) 
         {
-            index = 0;
+            Index = 0;
             Value = sourceString;
         }
 
@@ -15,11 +15,20 @@ namespace ScriptTemplates.PostProcessing
         {
             GotoStart();
             GotoLast("using");
-            GotoNextLine();
+
+            if(IndexAtEOF) 
+            {
+                GotoStart();
+            }
+            else 
+            {
+                GotoNextLine();
+                InsertAndSkip("\n");
+            }
             
-            InsertAndSkip("\n");
-            InsertAndSkip("\nnamespace " + nameSpace + "\n");
+            InsertAndSkip("namespace " + nameSpace + "\n");
             InsertAndSkip("{\n");
+            ConsumeAll('\n');
 
             while(!IndexAtEOF) 
             {
@@ -44,7 +53,7 @@ namespace ScriptTemplates.PostProcessing
                 if(IndexAtEOF)
                     break;
 
-                RemoveUntil(Value.IndexOf('\n', index));
+                RemoveUntil(Value.IndexOf('\n', Index));
                 Insert(namespaceLine);
                 GotoNextLine();
             }
@@ -52,12 +61,12 @@ namespace ScriptTemplates.PostProcessing
 
         public void GotoStart() 
         {
-            index = 0;
+            Index = 0;
         }
 
         public void PlaceIndexAfterLastOccurence(string substring) 
         {
-            index = Value.LastIndexOf(substring);
+            Index = Value.LastIndexOf(substring);
 
             if(IndexAtEOF)
                 GotoStart();
@@ -68,37 +77,39 @@ namespace ScriptTemplates.PostProcessing
 
         public void GotoFirst(string substring) 
         {
-            GotoStart();
-            index = Value.IndexOf(substring, index);
+            Index = Value.IndexOf(substring);
         }
 
-        public void GotoNext(string substring, bool skip = false) 
+        public void GotoNext(string substring) 
         {
-            index = Value.IndexOf(substring, index);
+            Index = Value.IndexOf(substring, Index);
         }
 
-        public void GotoLast(string substring, bool skip = false) 
+        public void GotoLast(string substring) 
         {
-            index = Value.LastIndexOf(substring, index);
+            Index = Value.LastIndexOf(substring);
         }
 
         public void GotoNextLine() 
         {
-            index = Value.IndexOf('\n', index) + 1;
+            Index = Value.IndexOf('\n', Index);
+            
+            if(!IndexAtEOF)
+                Index += 1;
         }
 
         public void RemoveUntil(int endIndex) 
         {
             if(endIndex < 0)
-                Value = Value.Remove(index);
+                Value = Value.Remove(Index);
 
-            Value = Value.Remove(index, endIndex - index);
+            Value = Value.Remove(Index, endIndex - Index);
         }
 
         public void Insert(string substring) 
         {
             if(!IndexAtEOF)
-                Value = Value.Insert(index, substring);
+                Value = Value.Insert(Index, substring);
             else
                 Value += substring;
         }
@@ -106,11 +117,24 @@ namespace ScriptTemplates.PostProcessing
         public void InsertAndSkip(string substring) 
         {
             Insert(substring);
-            index += substring.Length;
+            Index += substring.Length;
+        }
+
+        public void ConsumeAll(char character) 
+        {
+            int endIdx = Index;
+
+            while(!IsEOF(endIdx) && Value[endIdx] == character)
+                ++endIdx;
+
+            RemoveUntil(endIdx);
         }
 
 
         private bool IndexAtEOF
+            => IsEOF(Index);
+
+        private bool IsEOF(int index)
             => index < 0 || index >= Value.Length;
     }
 }

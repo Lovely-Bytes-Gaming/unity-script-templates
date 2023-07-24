@@ -109,12 +109,12 @@ namespace ScriptTemplates.PostProcessing
 
             var fileContent = File.ReadAllText(path);
             var scriptWrapper = new ScriptWrapper(fileContent);
+            var namespaceFromPath = NamespaceFromPath(path);
 
             if(!scriptWrapper.Value.Contains("namespace"))
-                scriptWrapper.AddNameSpace("ReplaceMe");
-
-            var namespaceFromPath = NamespaceFromPath(path);
-            scriptWrapper.ChangeNamespace(namespaceFromPath);
+                scriptWrapper.AddNameSpace(namespaceFromPath);
+            else
+                scriptWrapper.ChangeNamespace(namespaceFromPath);
 
             System.IO.File.WriteAllText(path, scriptWrapper.Value);
         }
