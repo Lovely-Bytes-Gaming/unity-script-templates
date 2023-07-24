@@ -1,4 +1,4 @@
-// DONT_REPLACE_KEYWORDS
+// DONT_REPLACE_KEYWORDS  <-- Stops the script processor from changing this script. Copy/Paste at your leisure :)
 
 #if UNITY_EDITOR 
 
@@ -10,7 +10,7 @@ using System.IO;
 
 namespace ScriptTemplates.PostProcessing 
 {
-    internal sealed class KeywordProcessor : AssetModificationProcessor
+    internal sealed class ScriptProcessor : AssetModificationProcessor
     {
         private static readonly char[] delimiters = new char[] { '/', '\\', '.' };
         private static readonly List<string> excludeFromNamespace = new() 
@@ -76,74 +76,45 @@ namespace ScriptTemplates.PostProcessing
 
         private static void ProcessPath(string path) 
         {
+            if(string.IsNullOrEmpty(path))
+                return;
+
             if(Directory.Exists(path))
                 ProcessDirectory(path);
 
-            else if (path.EndsWith(".cs"))
+            else
                 ProcessScriptAsset(path);
         }
 
         private static void ProcessDirectory(string path) 
         {
             DirectoryInfo dirInfo = new DirectoryInfo(path);
-            var fileInfos = dirInfo.GetFiles();
+
+            var files = dirInfo.GetFiles();
             var subdirs = dirInfo.GetDirectories();
 
-            foreach(var info in fileInfos)
-                ProcessPath(info.FullName);
+            foreach(var info in files)
+                ProcessScriptAsset(info.FullName);
 
             foreach(var info in subdirs)
-                ProcessPath(info.FullName);
+                ProcessDirectory(info.FullName);
         }
 
         private static void ProcessScriptAsset(string path) 
         {
+            if(!path.EndsWith(".cs"))
+                return;
+
             path = path.Remove(0, path.IndexOf("Assets"));
 
             var namespaceStr = "namespace " + NamespaceFromPath(path);
-            var scriptStr = File.ReadAllText(path);
+            var scriptWrapper = new ScriptWrapper(File.ReadAllText(path));
 
-            if(!scriptStr.Contains("namespace "))
-                AddNamespaceKeyword(ref scriptStr);
+            if(!scriptWrapper.Value.Contains("namespace"))
+                scriptWrapper.AddNameSpace("ReplaceMe");
 
-            int idx = 0;
-            while(true) 
-            {
-                idx = scriptStr.IndexOf("namespace ", idx);
-                
-                if(idx < 0)
-                    break;
-
-                int endIdx = scriptStr.IndexOf('\n', idx);
-
-                scriptStr = scriptStr.Remove(idx, endIdx - idx);
-                scriptStr = scriptStr.Insert(idx, namespaceStr);
-
-                idx += "namespace ".Length;
-            }
-            System.IO.File.WriteAllText(path, scriptStr);
-        }
-
-        private static void AddNamespaceKeyword(ref string fileContent) 
-        {
-            int idx = fileContent.LastIndexOf("using");
-
-            if(idx < 0)
-                idx = 0;
-
-            else
-                idx = fileContent.IndexOf('\n', idx) + 1;
-
-            fileContent = fileContent.Insert(idx, "\nnamespace ReplaceMe\n{\n");
-            idx = fileContent.IndexOf('{') + 2;
-
-            do
-            {
-                fileContent = fileContent.Insert(idx, "\t");
-                idx = fileContent.IndexOf('\n', idx + 1) + 1;
-            } while (idx > 0);
-
-            fileContent += "\n}";
+            scriptWrapper.ChangeNamespace(namespaceStr);
+            System.IO.File.WriteAllText(path, scriptWrapper.Value);
         }
 
         private static void OnWillMoveScriptAsset(string sourcePath, string destinationPath) 
