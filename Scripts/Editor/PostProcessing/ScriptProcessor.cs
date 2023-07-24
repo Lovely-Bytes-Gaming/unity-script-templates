@@ -13,7 +13,7 @@ namespace ScriptTemplates.PostProcessing
     internal sealed class ScriptProcessor : AssetModificationProcessor
     {
         private static readonly char[] delimiters = new char[] { '/', '\\', '.' };
-        private static readonly List<string> excludeFromNamespace = new() 
+        private static readonly string[] excludeFromNamespace = new[]
         { 
             "Scripts", 
             "Editor", 
@@ -107,13 +107,15 @@ namespace ScriptTemplates.PostProcessing
 
             path = path.Remove(0, path.IndexOf("Assets"));
 
-            var namespaceStr = "namespace " + NamespaceFromPath(path);
-            var scriptWrapper = new ScriptWrapper(File.ReadAllText(path));
+            var fileContent = File.ReadAllText(path);
+            var scriptWrapper = new ScriptWrapper(fileContent);
 
             if(!scriptWrapper.Value.Contains("namespace"))
                 scriptWrapper.AddNameSpace("ReplaceMe");
 
-            scriptWrapper.ChangeNamespace(namespaceStr);
+            var namespaceFromPath = NamespaceFromPath(path);
+            scriptWrapper.ChangeNamespace(namespaceFromPath);
+
             System.IO.File.WriteAllText(path, scriptWrapper.Value);
         }
 

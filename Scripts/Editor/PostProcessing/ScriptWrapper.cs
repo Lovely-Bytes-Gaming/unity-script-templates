@@ -13,12 +13,13 @@ namespace ScriptTemplates.PostProcessing
 
         public void AddNameSpace(string nameSpace) 
         {
+            GotoStart();
             GotoLast("using");
             GotoNextLine();
-            Insert("\nnamespace " + nameSpace + "\n");
-            GotoNextLine();
-            Insert("{\n");
-            GotoNextLine();
+            
+            InsertAndSkip("\n");
+            InsertAndSkip("\nnamespace " + nameSpace + "\n");
+            InsertAndSkip("{\n");
 
             while(!IndexAtEOF) 
             {
@@ -34,16 +35,17 @@ namespace ScriptTemplates.PostProcessing
             GotoStart();
             PlaceIndexAfterLastOccurence("using");
 
+            string namespaceLine = "namespace " + newNamespace;
+
             while(true) 
             {
                 GotoNext("namespace ");
-                GotoNextLine();
 
                 if(IndexAtEOF)
                     break;
 
                 RemoveUntil(Value.IndexOf('\n', index));
-                Insert(newNamespace);
+                Insert(namespaceLine);
                 GotoNextLine();
             }
         } 
@@ -70,12 +72,12 @@ namespace ScriptTemplates.PostProcessing
             index = Value.IndexOf(substring, index);
         }
 
-        public void GotoNext(string substring) 
+        public void GotoNext(string substring, bool skip = false) 
         {
             index = Value.IndexOf(substring, index);
         }
 
-        public void GotoLast(string substring) 
+        public void GotoLast(string substring, bool skip = false) 
         {
             index = Value.LastIndexOf(substring, index);
         }
@@ -101,8 +103,14 @@ namespace ScriptTemplates.PostProcessing
                 Value += substring;
         }
 
+        public void InsertAndSkip(string substring) 
+        {
+            Insert(substring);
+            index += substring.Length;
+        }
+
 
         private bool IndexAtEOF
-            => index < 0;
+            => index < 0 || index >= Value.Length;
     }
 }
