@@ -1,14 +1,20 @@
+using System;
+using System.Runtime.CompilerServices;
+
+[assembly: InternalsVisibleTo("Tests")]
 namespace ScriptTemplates.PostProcessing 
 {
-	internal struct ScriptWrapper 
+	internal class ScriptWrapper 
 	{
         public int Index { get; private set; }
-        public string Value { get;  private set;}
+        public string Value { get; private set;}
 
         public ScriptWrapper(string sourceString) 
         {
             Index = 0;
-            Value = sourceString;
+            
+            Value = sourceString 
+                ?? throw new NullReferenceException("Tried to instantiate ScriptWrapper with NULL string!");
         }
 
         public void AddNameSpace(string nameSpace) 
@@ -16,7 +22,7 @@ namespace ScriptTemplates.PostProcessing
             GotoStart();
             GotoLast("using");
 
-            if(IndexAtEOF) 
+            if(IsOutOfBounds(Index)) 
             {
                 // no using directives, so we can put the namespace in the first line
                 GotoStart();
@@ -30,9 +36,9 @@ namespace ScriptTemplates.PostProcessing
             
             InsertAndSkip("namespace " + nameSpace + "\n");
             InsertAndSkip("{\n");
-            ConsumeAll('\n');
+            RemoveConsecutive('\n');
 
-            while(!IndexAtEOF) 
+            while(!IsOutOfBounds(Index)) 
             {
                 Insert("\t");
                 GotoNextLine();
@@ -44,7 +50,12 @@ namespace ScriptTemplates.PostProcessing
         public void ChangeNamespace(string newNamespace) 
         {
             GotoStart();
-            PlaceIndexAfterLast("using");
+            GotoLast("using");
+
+            if(IsOutOfBounds(Index))
+                GotoStart();
+            else
+                GotoNextLine();
 
             string namespaceLine = "namespace " + newNamespace;
 
@@ -52,7 +63,7 @@ namespace ScriptTemplates.PostProcessing
             {
                 GotoNext("namespace ");
 
-                if(IndexAtEOF)
+                if(IsOutOfBounds(Index))
                     break;
 
                 RemoveUntil(Value.IndexOf('\n', Index));
@@ -66,54 +77,57 @@ namespace ScriptTemplates.PostProcessing
             Index = 0;
         }
 
-        public void PlaceIndexAfterLast(string substring) 
-        {
-            Index = Value.LastIndexOf(substring);
-
-            if(IndexAtEOF)
-                GotoStart();
-
-            else
-                GotoNextLine();
-        }
-
         public void GotoFirst(string substring) 
         {
-            Index = Value.IndexOf(substring);
+            Index = IsOutOfBounds(Index) 
+                ? Index
+                : Value.IndexOf(substring);
         }
 
         public void GotoNext(string substring) 
         {
-            Index = Value.IndexOf(substring, Index);
+            Index = IsOutOfBounds(Index)
+                ? Index
+                : Value.IndexOf(substring, Index);
         }
 
         public void GotoLast(string substring) 
         {
-            Index = Value.LastIndexOf(substring);
+            Index = IsOutOfBounds(Index)
+                ? Index 
+                : Value.LastIndexOf(substring);
         }
 
         public void GotoNextLine() 
         {
-            Index = Value.IndexOf('\n', Index);
+            Index = IsOutOfBounds(Index)
+                ? Index
+                : Value.IndexOf('\n', Index);
             
-            if(!IndexAtEOF)
+            if(!IsOutOfBounds(Index))
                 Index += 1;
         }
 
         public void RemoveUntil(int endIndex) 
         {
+            if(IsOutOfBounds(Index))
+                return;
+
             if(endIndex < 0)
                 Value = Value.Remove(Index);
-
-            Value = Value.Remove(Index, endIndex - Index);
+            else
+                Value = Value.Remove(Index, endIndex - Index);
         }
 
         public void Insert(string substring) 
         {
-            if(!IndexAtEOF)
-                Value = Value.Insert(Index, substring);
-            else
+            if(IsOutOfBounds(Index)) 
+            {
+                Index = Value.Length;
                 Value += substring;
+            }
+            else
+                Value = Value.Insert(Index, substring);
         }
 
         public void InsertAndSkip(string substring) 
@@ -122,21 +136,20 @@ namespace ScriptTemplates.PostProcessing
             Index += substring.Length;
         }
 
-        public void ConsumeAll(char character) 
+        public void RemoveConsecutive(char character) 
         {
             int endIdx = Index;
 
-            while(!IsEOF(endIdx) && Value[endIdx] == character)
+            while(!IsOutOfBounds(endIdx) && Value[endIdx] == character)
                 ++endIdx;
 
             RemoveUntil(endIdx);
         }
 
+        public bool IndexOutOfBounds
+            => IsOutOfBounds(Index);
 
-        private bool IndexAtEOF
-            => IsEOF(Index);
-
-        private bool IsEOF(int index)
+        public bool IsOutOfBounds(int index)
             => index < 0 || index >= Value.Length;
     }
 }
