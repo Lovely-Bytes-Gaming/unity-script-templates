@@ -1,6 +1,6 @@
 {
     "name": "ScriptTemplates.Editor",
-    "rootNamespace": "",
+    "rootNamespace": "ScriptTemplates",
     "references": [],
     "includePlatforms": [
         "Editor"

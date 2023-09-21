@@ -1,7 +1,6 @@
-namespace #NAMESPACE# 
+    #ROOTNAMESPACEBEGIN#
+public struct #SCRIPTNAME# 
 {
-	public struct #SCRIPTNAME# 
-	{
-	#NOTRIM#
-	}
+#NOTRIM#
 }
+#ROOTNAMESPACEEND#

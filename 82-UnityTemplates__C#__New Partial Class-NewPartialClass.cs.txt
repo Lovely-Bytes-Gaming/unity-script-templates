@@ -1,7 +1,0 @@
-namespace #NAMESPACE# 
-{
-	public partial class #SCRIPTNAME# 
-	{
-	#NOTRIM#
-	}
-}

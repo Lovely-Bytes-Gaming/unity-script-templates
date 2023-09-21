@@ -1,0 +1,9 @@
+using UnityEngine;
+
+    #ROOTNAMESPACEBEGIN#
+[AddComponentMenu("#ASSETMENU#/#SCRIPTNAME#")]
+public class #SCRIPTNAME# : MonoBehaviour
+{
+#NOTRIM#
+}
+#ROOTNAMESPACEEND#

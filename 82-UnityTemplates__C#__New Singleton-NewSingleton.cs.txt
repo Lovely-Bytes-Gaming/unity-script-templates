@@ -1,12 +1,11 @@
-namespace #NAMESPACE# 
+    #ROOTNAMESPACEBEGIN#
+public class #SCRIPTNAME# 
 {
-	public class #SCRIPTNAME# 
-	{
-		private static #SCRIPTNAME# instance;
-		public static #SCRIPTNAME# Instance => instance ??= new #SCRIPTNAME#();
-		#NOTRIM#
-		private #SCRIPTNAME#()
-		{
-		}
-	}
+    private static #SCRIPTNAME# _instance;
+    public static #SCRIPTNAME# Instance => _instance ??= new #SCRIPTNAME#();
+    #NOTRIM#
+    private #SCRIPTNAME#()
+    {
+    }
 }
+#ROOTNAMESPACEEND#

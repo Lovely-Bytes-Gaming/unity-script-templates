@@ -1,7 +1,6 @@
-namespace #NAMESPACE# 
+    #ROOTNAMESPACEBEGIN#     
+public class #SCRIPTNAME# 
 {
-	public class #SCRIPTNAME# 
-	{
-	#NOTRIM#
-	}
+#NOTRIM#
 }
+#ROOTNAMESPACEEND#

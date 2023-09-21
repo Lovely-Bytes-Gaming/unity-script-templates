@@ -1,27 +1,26 @@
 using Unity.Entities;
 using Unity.Burst;
 
-namespace #NAMESPACE# 
+    #ROOTNAMESPACEBEGIN#
+[BurstCompile]
+public partial struct #SCRIPTNAME# : ISystem 
 {
     [BurstCompile]
-	public partial struct #SCRIPTNAME# : ISystem 
-	{
-        [BurstCompile]
-        public void OnCreate(ref SystemState state) 
-        {
-        #NOTRIM#
-        }
+    public void OnCreate(ref SystemState state) 
+    {
+    #NOTRIM#
+    }
 
-        [BurstCompile]
-        public void OnDestroy(ref SystemState state) 
-        {
-        #NOTRIM#
-        }
+    [BurstCompile]
+    public void OnDestroy(ref SystemState state) 
+    {
+    #NOTRIM#
+    }
 
-        [BurstCompile]
-        public void OnUpdate(ref SystemState state) 
-        {
-        #NOTRIM#
-        }
-	}
+    [BurstCompile]
+    public void OnUpdate(ref SystemState state) 
+    {
+    #NOTRIM#
+    }
 }
+#ROOTNAMESPACEEND#

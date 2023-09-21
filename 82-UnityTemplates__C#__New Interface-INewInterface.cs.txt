@@ -1,5 +1,5 @@
     #ROOTNAMESPACEBEGIN#
-public enum #SCRIPTNAME# 
+public interface #SCRIPTNAME# 
 {
 #NOTRIM#
 }
