@@ -20,7 +20,8 @@ namespace ScriptTemplates
         private const string
             _keywordNamespace = "#NAMESPACE#",
             _keywordAssetMenu = "#ASSETMENU#",
-            _keywordDontReplace = "// DONT_REPLACE_KEYWORDS";
+            _keywordDontReplace = "// DONT_REPLACE_KEYWORDS",
+            _defaultAssetMenu = "Custom";
 
         public static void OnWillCreateAsset(string path)
         {
@@ -40,10 +41,7 @@ namespace ScriptTemplates
                 return;
             
             string namespaceString = ExtractNamespace(fileContent);
-            
-            string assetMenuString = string.IsNullOrEmpty(namespaceString) 
-                ? "Custom"
-                : namespaceString.Replace('.', '/');
+            string assetMenuString = namespaceString.Replace('.', '/');
             
             fileContent = fileContent.Replace(_keywordAssetMenu, assetMenuString);
 
@@ -53,13 +51,18 @@ namespace ScriptTemplates
         
         private static string ExtractNamespace(in string fileContent)
         {
-            int start = fileContent.IndexOf("namespace", StringComparison.Ordinal)
-                        + "namespace".Length;   // could be hardcoded, but is clearer this way
+            int start = fileContent.IndexOf("namespace", StringComparison.Ordinal);
 
-            int length = fileContent.IndexOf('\n', start) - start - 1;
-            length = Mathf.Max(0, length);
+            if (start < 0)
+                return _defaultAssetMenu;
+
+            // Skip the "namespace" keyword, which has 9 letters
+            start += 9;
+
+            int charactersToRead = fileContent.IndexOf('\n', start) - start - 1;
+            charactersToRead = Mathf.Max(0, charactersToRead);
             
-            string result = fileContent.Substring(start, length);
+            string result = fileContent.Substring(start, charactersToRead);
             return result;
         }
     }
