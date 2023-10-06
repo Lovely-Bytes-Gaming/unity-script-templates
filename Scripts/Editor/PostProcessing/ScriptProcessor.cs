@@ -58,7 +58,17 @@ namespace ScriptTemplates
 
             // Skip the "namespace" keyword, which has 9 letters
             start += 9;
+            int end = fileContent.IndexOf('\n', start);
 
+            if (end < 0)
+                return _defaultAssetMenu;
+
+            while (fileContent[start] == ' ')
+                ++start;
+
+            if (start >= end)
+                return _defaultAssetMenu;
+                
             int charactersToRead = fileContent.IndexOf('\n', start) - start - 1;
             charactersToRead = Mathf.Max(0, charactersToRead);
             
