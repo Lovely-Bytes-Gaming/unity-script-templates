@@ -1,8 +1,12 @@
+// Requires .NET 4 or higher to make use of System.Lazy
+
     #ROOTNAMESPACEBEGIN#
 public class #SCRIPTNAME# 
 {
-    private static #SCRIPTNAME# _instance;
-    public static #SCRIPTNAME# Instance => _instance ??= new #SCRIPTNAME#();
+    private static readonly System.Lazy<#SCRIPTNAME#> _lazy
+        = new(() => new #SCRIPTNAME#());
+        
+    public static #SCRIPTNAME# Instance => _lazy.Value;
     #NOTRIM#
     private #SCRIPTNAME#()
     {
