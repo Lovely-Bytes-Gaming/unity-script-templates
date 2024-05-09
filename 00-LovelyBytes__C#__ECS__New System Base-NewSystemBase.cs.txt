@@ -1,0 +1,11 @@
+using Unity.Entities;
+
+    #ROOTNAMESPACEBEGIN#
+public partial class #SCRIPTNAME# : SystemBase
+{
+    protected override void OnUpdate()
+    {
+#NOTRIM#
+    }
+}
+#ROOTNAMESPACEEND#
